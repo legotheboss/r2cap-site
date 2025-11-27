@@ -49,6 +49,11 @@
     <script>
         const video = document.querySelector('.video-bg video');
 
+        // Show video only when actually playing
+        video.addEventListener('playing', () => {
+            video.classList.add('playing');
+        });
+
         // Ensure video plays (fallback for mobile)
         video.play().catch(() => {
             document.addEventListener('touchstart', () => video.play(), { once: true });
