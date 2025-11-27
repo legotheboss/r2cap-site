@@ -47,14 +47,26 @@
     </footer>
 
     <script>
-        // Ensure video plays on mobile
         const video = document.querySelector('.video-bg video');
 
-        // Try to play immediately
+        // Hide video until it's actually playing
+        video.style.opacity = '0';
+
+        function showVideo() {
+            video.style.opacity = '1';
+        }
+
+        // Show video once it starts playing
+        video.addEventListener('playing', showVideo, { once: true });
+
+        // Try to play
         video.play().catch(() => {
-            // If blocked, play on first interaction
-            document.addEventListener('touchstart', () => video.play(), { once: true });
-            document.addEventListener('click', () => video.play(), { once: true });
+            // If autoplay blocked, play on first interaction
+            const playOnInteraction = () => {
+                video.play();
+            };
+            document.addEventListener('touchstart', playOnInteraction, { once: true });
+            document.addEventListener('click', playOnInteraction, { once: true });
         });
     </script>
 </body>
