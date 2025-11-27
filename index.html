@@ -25,7 +25,7 @@
 <body>
     <!-- Background Video -->
     <div class="video-bg">
-        <video autoplay muted loop playsinline webkit-playsinline disablePictureInPicture disableRemotePlayback preload="auto" poster="poster.jpg">
+        <video autoplay muted defaultMuted loop playsinline webkit-playsinline disablePictureInPicture disableRemotePlayback preload="auto" poster="poster.jpg">
             <source src="video.mp4" type="video/mp4">
         </video>
         <div class="video-overlay"></div>
@@ -49,15 +49,34 @@
     <script>
         const video = document.querySelector('.video-bg video');
 
+        // Ensure muted (Safari requirement)
+        video.muted = true;
+        video.setAttribute('muted', '');
+
         // Show video only when actually playing
         video.addEventListener('playing', () => {
             video.classList.add('playing');
         });
 
-        // Ensure video plays (fallback for mobile)
-        video.play().catch(() => {
-            document.addEventListener('touchstart', () => video.play(), { once: true });
-            document.addEventListener('click', () => video.play(), { once: true });
+        // Aggressive autoplay attempts
+        function tryPlay() {
+            video.muted = true;
+            const playPromise = video.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(() => {});
+            }
+        }
+
+        // Try immediately
+        tryPlay();
+
+        // Try again after load
+        video.addEventListener('loadeddata', tryPlay);
+        video.addEventListener('canplay', tryPlay);
+
+        // Final fallback - play on any interaction
+        ['touchstart', 'touchend', 'click', 'scroll'].forEach(event => {
+            document.addEventListener(event, tryPlay, { once: true, passive: true });
         });
     </script>
 </body>
