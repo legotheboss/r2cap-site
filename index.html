@@ -25,7 +25,7 @@
 <body>
     <!-- Background Video -->
     <div class="video-bg">
-        <video autoplay muted loop playsinline>
+        <video autoplay muted loop playsinline webkit-playsinline disablePictureInPicture disableRemotePlayback preload="auto">
             <source src="video.mp4" type="video/mp4">
         </video>
         <div class="video-overlay"></div>
@@ -45,5 +45,17 @@
     <footer>
         <p class="locations">Singapore · Chicago</p>
     </footer>
+
+    <script>
+        // Ensure video plays on mobile
+        const video = document.querySelector('.video-bg video');
+
+        // Try to play immediately
+        video.play().catch(() => {
+            // If blocked, play on first interaction
+            document.addEventListener('touchstart', () => video.play(), { once: true });
+            document.addEventListener('click', () => video.play(), { once: true });
+        });
+    </script>
 </body>
 </html>
