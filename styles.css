@@ -14,6 +14,7 @@
 html, body {
     height: 100%;
     overflow: hidden;
+    background: #000;
 }
 
 body {
@@ -76,6 +77,25 @@ body {
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.75);
+}
+
+.vignette-top,
+.vignette-bottom {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 15vh;
+    pointer-events: none;
+}
+
+.vignette-top {
+    top: 0;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0) 100%);
+}
+
+.vignette-bottom {
+    bottom: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0) 100%);
 }
 
 /* Main Content */
