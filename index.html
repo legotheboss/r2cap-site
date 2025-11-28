@@ -30,9 +30,8 @@
 <body>
     <!-- Background Video -->
     <div class="video-bg">
-        <video autoplay muted defaultMuted loop playsinline webkit-playsinline disablePictureInPicture disableRemotePlayback preload="auto" poster="poster.jpg">
-            <source src="video.mp4" type="video/mp4">
-        </video>
+        <video id="videoA" muted defaultMuted playsinline webkit-playsinline disablePictureInPicture disableRemotePlayback preload="auto" poster="poster.jpg"></video>
+        <video id="videoB" muted defaultMuted playsinline webkit-playsinline disablePictureInPicture disableRemotePlayback preload="auto"></video>
         <div class="video-overlay"></div>
     </div>
 
@@ -52,36 +51,55 @@
     </footer>
 
     <script>
-        const video = document.querySelector('.video-bg video');
+        const videoA = document.getElementById('videoA');
+        const videoB = document.getElementById('videoB');
+        const videos = ['video1.mp4', 'video2.mp4', 'video3.mp4', 'video4.mp4'];
+        let playingIndex = 0;
 
-        // Ensure muted (Safari requirement)
-        video.muted = true;
-        video.setAttribute('muted', '');
-
-        // Show video only when actually playing
-        video.addEventListener('playing', () => {
-            video.classList.add('playing');
+        // Ensure both muted (Safari requirement)
+        [videoA, videoB].forEach(v => {
+            v.muted = true;
+            v.setAttribute('muted', '');
         });
 
-        // Aggressive autoplay attempts
-        function tryPlay() {
-            video.muted = true;
-            const playPromise = video.play();
-            if (playPromise !== undefined) {
-                playPromise.catch(() => {});
-            }
+        // Initialize: A plays video1, B preloads video2
+        videoA.src = videos[0];
+        videoB.src = videos[1];
+        videoA.classList.add('active');
+
+        function switchVideos() {
+            // Move to next video
+            playingIndex = (playingIndex + 1) % videos.length;
+            const preloadIndex = (playingIndex + 1) % videos.length;
+
+            // Determine which is current and which is next
+            const isAActive = videoA.classList.contains('active');
+            const current = isAActive ? videoA : videoB;
+            const next = isAActive ? videoB : videoA;
+
+            // Swap visibility
+            current.classList.remove('active');
+            next.classList.add('active');
+            next.play().catch(() => {});
+
+            // Preload following video into the now-hidden element
+            current.src = videos[preloadIndex];
+            current.load();
         }
 
-        // Try immediately
-        tryPlay();
+        videoA.addEventListener('ended', switchVideos);
+        videoB.addEventListener('ended', switchVideos);
 
-        // Try again after load
-        video.addEventListener('loadeddata', tryPlay);
-        video.addEventListener('canplay', tryPlay);
+        // Initial play
+        videoA.play().catch(() => {});
 
-        // Final fallback - play on any interaction
-        ['touchstart', 'touchend', 'click', 'scroll'].forEach(event => {
-            document.addEventListener(event, tryPlay, { once: true, passive: true });
+        // Mobile autoplay fallback
+        ['touchstart', 'click'].forEach(event => {
+            document.addEventListener(event, () => {
+                const active = videoA.classList.contains('active') ? videoA : videoB;
+                active.muted = true;
+                active.play().catch(() => {});
+            }, { once: true, passive: true });
         });
     </script>
 </body>
